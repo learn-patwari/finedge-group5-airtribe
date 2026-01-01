@@ -1,23 +1,18 @@
-import { v4 as uuid } from "uuid";
+import User from "../models/user.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { readJSON, writeJSON } from "../utils/fileHelper";
-
-const FILE = "src/data/users.json";
 
 /**
  * Register user
  */
-export async function registerUser({ email, password }) {
-  if (!email || !password) {
-    const err = new Error("Email and password are required");
+export async function registerUser({ name, email, password }) {
+  if (!name || !email || !password) {
+    const err = new Error("Name, email and password are required");
     err.status = 400;
     throw err;
   }
 
-  const users = await readJSON(FILE);
-
-  const exists = users.find(u => u.email === email);
+  const exists = await User.findOne({ email });
   if (exists) {
     const err = new Error("User already exists");
     err.status = 409;
@@ -26,19 +21,17 @@ export async function registerUser({ email, password }) {
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = {
-    id: uuid(),
+  const user = new User({
+    name,
     email,
-    password: hashedPassword,
-    createdAt: new Date()
-  };
+    password: hashedPassword
+  });
 
-  users.push(user);
-  await writeJSON(FILE, users);
+  await user.save();
 
-  // Never return password
   return {
-    id: user.id,
+    id: user._id.toString(),
+    name: user.name,
     email: user.email
   };
 }
@@ -53,9 +46,7 @@ export async function loginUser({ email, password }) {
     throw err;
   }
 
-  const users = await readJSON(FILE);
-  const user = users.find(u => u.email === email);
-
+  const user = await User.findOne({ email });
   if (!user) {
     const err = new Error("Invalid credentials");
     err.status = 401;
@@ -70,10 +61,7 @@ export async function loginUser({ email, password }) {
   }
 
   const token = jwt.sign(
-    {
-      userId: user.id,
-      email: user.email
-    },
+    { userId: user._id.toString(), email: user.email },
     process.env.JWT_SECRET,
     { expiresIn: process.env.JWT_EXPIRES_IN }
   );
@@ -85,9 +73,13 @@ export async function loginUser({ email, password }) {
  * Get user by ID (for profile)
  */
 export async function getUserById(userId) {
-  const users = await readJSON(FILE);
-  const user = users.find(u => u.id === userId);
+  if (!userId) {
+    const err = new Error("User ID is required");
+    err.status = 400;
+    throw err;
+  }
 
+  const user = await User.findById(userId).select("name email createdAt");
   if (!user) {
     const err = new Error("User not found");
     err.status = 404;
@@ -95,7 +87,8 @@ export async function getUserById(userId) {
   }
 
   return {
-    id: user.id,
+    id: user._id.toString(),
+    name: user.name,
     email: user.email,
     createdAt: user.createdAt
   };
