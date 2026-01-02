@@ -2,12 +2,15 @@ const creditService = require("../services/creditService");
 const debitService = require("../services/debitService");
 const transferService = require("../services/transferService");
 const transactionService = require("../services/transactionService");
+const aiHelper = require("../utils/aiHelper");
 
 async function create(req, res, next) {
   try {
     const { type } = req.body;
 
     let result;
+    const transactionData = req.body;
+    transactionData.category = aiHelper.autoCategorize(transactionData);
     if (type === "credit") {
       result = await creditService.addCreditTransaction(req.body);
     } else if (type === "debit") {
@@ -17,7 +20,7 @@ async function create(req, res, next) {
     } else {
       throw new Error("Unsupported transaction type");
     }
-
+    aiHelper.notifyNewTransaction(result);
     res.status(201).json(result);
   } catch (err) {
     next(err);
