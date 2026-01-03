@@ -4,7 +4,10 @@ const app = express();
 const userRouter = require('./src/routes/userRoute');
 const responseMiddleware = require('./src/middlewares/responseMiddleware');
 const globalErrorHandlerMiddleware = require('./src/middlewares/globalErrorHandlerMiddleware');
-
+const transactionRoute = require('./src/routes/transactionRoute');
+const analyticsRoute = require('./src/routes/analyticsRoute');
+const aiRoute = require('./src/routes/aiRoute');
+const budgetRoute = require('./src/routes/budgetRoute');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -15,6 +18,9 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/v1/users',userRouter);
+app.use('/api/v1/transactions', transactionRoute);
+app.use('/api/v1/analytics', analyticsRoute);
+app.use('/api/v1/ai', aiRoute);
 
 app.use(globalErrorHandlerMiddleware);
 
