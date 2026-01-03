@@ -1,10 +1,10 @@
-const Transaction = require("../../src/models/transaction");
 const transactionController = require("../../src/controllers/transactionController");
 const transactionService = require("../../src/services/transactionService");
 const creditService = require("../../src/services/creditService");
 const debitService = require("../../src/services/debitService");
 const transferService = require("../../src/services/transferService");
 const aiHelper = require("../../src/utils/aiHelper");
+const validateTransaction = require("../../src/middlewares/transactionValidator");
 
 jest.mock("../../src/models/transaction");
 jest.mock("../../src/services/transactionService", () => ({
@@ -145,6 +145,148 @@ describe("transactionController", () => {
 
       expect(transactionService.updateTransaction).toHaveBeenCalledWith("1", { amount: 200 });
       expect(res.json).toHaveBeenCalledWith({ id: "1", amount: 200 });
+    });
+  });
+
+  describe("validateTransaction", () => {
+    it("should return an error when 'type' is missing", async () => {
+      const req = { body: { amount: 100 } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Missing required fields: type and amount"));
+    });
+
+    it("should return an error when 'amount' is missing", async () => {
+      const req = { body: { type: "credit" } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Missing required fields: type and amount"));
+    });
+
+    it("should return an error for invalid transaction type", async () => {
+      const req = { body: { type: "invalid", amount: 100 } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Invalid transaction type"));
+    });
+
+    it("should return an error when 'amount' is not a number", async () => {
+      const req = { body: { type: "credit", amount: "invalid" } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Invalid amount"));
+    });
+
+    it("should return an error when 'amount' is negative", async () => {
+      const req = { body: { type: "credit", amount: -100 } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Invalid amount"));
+    });
+
+    it("should return an error when 'currency' is not a string", async () => {
+      const req = { body: { type: "credit", amount: 100, currency: 123 } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Invalid currency"));
+    });
+
+    it("should return an error when 'occurredAt' is not a valid date", async () => {
+      const req = { body: { type: "credit", amount: 100, occurredAt: "invalid-date" } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Invalid occurredAt date"));
+    });
+
+    it("should return an error when 'paymentMethod' is invalid", async () => {
+      const req = { body: { type: "credit", amount: 100, paymentMethod: "invalid" } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Invalid payment method"));
+    });
+
+    it("should return an error when 'status' is invalid", async () => {
+      const req = { body: { type: "credit", amount: 100, status: "invalid" } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Invalid status"));
+    });
+
+    it("should return an error when 'description' exceeds 500 characters", async () => {
+      const req = { body: { type: "credit", amount: 100, description: "a".repeat(501) } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Description exceeds maximum length of 500 characters"));
+    });
+
+    it("should return an error when 'notes' exceed 1000 characters", async () => {
+      const req = { body: { type: "credit", amount: 100, notes: "a".repeat(1001) } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Notes exceed maximum length of 1000 characters"));
+    });
+
+    it("should return an error when 'tags' is not an array", async () => {
+      const req = { body: { type: "credit", amount: 100, tags: "not-an-array" } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Tags must be an array of strings"));
+    });
+
+    it("should return an error when 'transferAccount' is missing for transfer transactions", async () => {
+      const req = { body: { type: "transfer", amount: 100 } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(new Error("Transfer account is required for transfer transactions"));
+    });
+
+    it("should call next with an error when validation fails", async () => {
+      const req = { body: { type: "invalid", amount: 100 } };
+      const res = {};
+      const next = jest.fn();
+
+      await validateTransaction(req, res, next);
+
+      expect(next).toHaveBeenCalledWith(expect.any(Error));
     });
   });
 });
