@@ -1,3 +1,4 @@
+const Transaction = require("../../src/models/transaction");
 const transactionController = require("../../src/controllers/transactionController");
 const transactionService = require("../../src/services/transactionService");
 const creditService = require("../../src/services/creditService");
