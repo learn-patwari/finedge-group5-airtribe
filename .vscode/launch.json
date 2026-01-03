@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug (nodemon)",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "nodemon",
+      "runtimeArgs": ["--inspect"],
+      "args": ["app.js"],
+      "restart": true,
+      "console": "integratedTerminal",
+      "skipFiles": ["<node_internals>/**"]
+    }
+  ]
+}

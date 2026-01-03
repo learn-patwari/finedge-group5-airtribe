@@ -19,8 +19,11 @@ const usersSchema = new mongoose.Schema(
             required: true,
         },
         preferences: {
-            type: [String],
-            default: [],
+            type: Map,
+            of: String,
+            default: {
+				language: 'ENG',
+			},
         },
         defaultCurrency: {
             type: String,
@@ -34,6 +37,6 @@ const usersSchema = new mongoose.Schema(
     }
 );
 
-usersSchema.index({ email: 1 }, { unique: true });
+usersSchema.index( { unique: true });
 
 module.exports = mongoose.model('User', usersSchema);
