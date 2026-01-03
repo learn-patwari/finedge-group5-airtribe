@@ -4,9 +4,10 @@
   "description": "Personal Finance & Expense Tracker API",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "dev": "nodemon app.js"
+    "dev": "nodemon app.js",
+    "test:file": "jest --",
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,7 @@
     "mongoose": "^8.20.4"
   },
   "devDependencies": {
+    "jest": "^30.2.0",
     "nodemon": "^3.1.11"
   }
 }
