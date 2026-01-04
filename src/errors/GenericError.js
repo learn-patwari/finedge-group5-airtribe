@@ -1,45 +1,38 @@
 const ERROR_CODES = require("../constants/errorCodes");
 
 class GenericError extends Error {
-	/**
-	 * @param {string} message
-	 * @param {{
-	 *  statusCode?: number,
-	 *  code?: string,
-	 *  details?: any,
-	 *  cause?: any,
-	 * }} [options]
-	 */
-	constructor(message = ERROR_CODES.INTERNAL_ERROR.message, options = {}) {
-		super(message);
+	constructor(errorCodeObj, message, details) {
+		const fallback = ERROR_CODES.FIGE001;
+		const resolved = errorCodeObj || fallback;
 
-		const {
-			statusCode = ERROR_CODES.INTERNAL_ERROR.statusCode,
-			code = ERROR_CODES.INTERNAL_ERROR.code,
-			details,
-			cause,
-		} = options;
+		const resolvedMessage =
+			message ??
+			resolved?.message ??
+			fallback.message ;
+
+		super(resolvedMessage);
 
 		this.name = this.constructor.name;
-		this.statusCode = statusCode;
-		this.code = code;
+		this.httpCode = Number(resolved?.httpCode) || fallback.httpCode;
+		this.statusCode = resolved?.statusCode || fallback.statusCode;
+		this.errorCode = resolved?.errorCode || resolved?.code || fallback.errorCode;
 		this.details = details;
-		if (cause !== undefined) this.cause = cause;
 
 		if (Error.captureStackTrace) {
 			Error.captureStackTrace(this, this.constructor);
 		}
 	}
 
-	toJSON() {
-		return {
-			name: this.name,
-			message: this.message,
-			code: this.code,
-			statusCode: this.statusCode,
-			details: this.details,
-		};
-	}
+	// toJSON() {
+	// 	return {
+	// 		name: this.name,
+	// 		message: this.message,
+	// 		httpCode: this.httpCode,
+	// 		statusCode: this.statusCode,
+	// 		errorCode: this.errorCode,
+	// 		details: this.details,
+	// 	};
+	// }
 }
 
 module.exports = GenericError;
