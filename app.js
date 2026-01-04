@@ -7,7 +7,8 @@ const globalErrorHandlerMiddleware = require('./src/middlewares/globalErrorHandl
 const transactionRoute = require('./src/routes/transactionRoute');
 const analyticsRoute = require('./src/routes/analyticsRoute');
 const aiRoute = require('./src/routes/aiRoute');
-const budgetRoute = require('./src/routes/budgetRoute');
+const budgetRouter = require('./src/routes/budgetRoute');
+const validateJwt = require('./src/middlewares/authMiddleware');
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -18,10 +19,10 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/api/v1/users',userRouter);
-app.use('/api/v1/transactions', transactionRoute);
-app.use('/api/v1/analytics', analyticsRoute);
-app.use('/api/v1/ai', aiRoute);
-
+app.use('/api/v1/transactions',validateJwt, transactionRoute);
+app.use('/api/v1/analytics', validateJwt,analyticsRoute);
+app.use('/api/v1/ai',validateJwt, aiRoute);
+app.use('/api/v1/budgets',validateJwt, budgetRouter);
 app.use(globalErrorHandlerMiddleware);
 
 module.exports = app;
