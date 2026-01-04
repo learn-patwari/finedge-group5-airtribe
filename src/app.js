@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/transactions', transactionRoute);
 app.use('/analytics', analyticsRoute);
 app.use('/ai', aiRoute);
-//app.use('/budgets', budgetRoute);
+app.use('/budgets', budgetRoute);
 
 app.get('/health', (req, res) => {
   res.send('Up and Running');
