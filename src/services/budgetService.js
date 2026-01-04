@@ -15,7 +15,11 @@ async function getAllBudgetsForUser(userId, filters = {}) {
 	if (filters.month !== undefined) query.month = filters.month;
 	if (filters.status !== undefined) query.status = filters.status;
 
-	return Budget.find(query).sort({ year: -1, month: -1, createdAt: -1 });
+	// return Budget.find(query).sort({ year: -1, month: -1, createdAt: -1 });
+  return Budget.find(query)
+  .sort({ year: -1, month: -1 })
+  .lean();
+
 }
 
 module.exports = {
