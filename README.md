@@ -170,3 +170,4 @@ Contributors below are derived from git history (unique authors):
 
 - Akshay Patwari (learn.akshay.patwari@gmail.com)
 - Sai Prasath (sai20prasath@gmail.com)
+- Sumayya Kowser (sumayyakowsers@gmail.com)

@@ -7,9 +7,9 @@ const transactionSchema = new mongoose.Schema(
             ref: 'User',
             required: true,
             index: true,
-            default: function () {
-                return this._id; // Set userId to the same value as _id
-            },
+            // default: function () {
+            //     return this._id; // Set userId to the same value as _id
+            // },
         },
         type: {
             type: String,
