@@ -1,13 +1,10 @@
 const express = require("express");
-const budgetController = require("../controllers/budgetController");
-const authenticate = require("../middlewares/authMiddleware");
+const budgetContoller = require("../controllers/budgetController");
 
 const router = express.Router();
 
-router.use(authenticate); 
-
-router.post("/", budgetController.createBudget);
-router.get("/", budgetController.getAllBudgets);
-router.get("/:id", budgetController.getBudget);
+router.post("/", budgetContoller.createBudget);
+router.get("/:id", budgetContoller.getBudget);
+router.get("/", budgetContoller.getAllBudgets);
 
 module.exports = router;

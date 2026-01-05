@@ -12,9 +12,6 @@ async function createBudget(req, res) {
 		throw new BadRequestError(ERROR_CODES.BDRQ001, 'Missing authenticated user');
 	}
 
-	
-	  
-
 	const {
 		year,
 		month,
@@ -31,12 +28,6 @@ async function createBudget(req, res) {
 		throw new BadRequestError(ERROR_CODES.BDRQ001, 'year and month are required');
 	}
 
-	if (year < 2000 || year > 3000 || month < 1 || month > 12) {
-		throw new BadRequestError(
-		  ERROR_CODES.BDRQ001,
-		  'Invalid year or month'
-		);
-	  }
 	const budgetPayload = {
 		userId: authUserId,
 		year: Number(year),
@@ -63,7 +54,6 @@ async function createBudget(req, res) {
 		}
 		throw err;
 	}
-	
 }
 
 async function getBudget(req, res) {
